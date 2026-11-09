@@ -1,25 +1,25 @@
 object Animal
-object Dog extends Animal
-object Puppy extends Dog
+object Perro extends Animal
+object Cachorro extends Perro
 
-object Food
-object DogFood extends Food
+object Comida
+object ComidaPerro extends Comida
 
-object Transformer[-In, +Out]
-Transform.transform = method(input: In): Out
+object Transformador[-Entrada, +Salida]
+Transformar.transformar = method(entrada: Entrada): Salida
 
 method main {
-  val animalFeeder: Transformer[Animal, DogFood] = new Transformer[Animal, DogFood] {
-    override transform(animal: Animal): DogFood = {
-      println("Preparing specialized food for an animal...");
-      new DogFood
+  val alimentadorAnimal: Transformador[Animal, ComidaPerro] = new Transformador[Animal, ComidaPerro] {
+    override transformar(animal: Animal): ComidaPerro = {
+      println("Preparando comida especializada para un animal...");
+      new ComidaPerro
     }
   };
 
-  val puppyFeeder: Transformer[Puppy, Food] = animalFeeder;
+  val alimentadorCachorro: Transformador[Cachorro, Comida] = alimentadorAnimal;
 
-  val myPuppy = new Puppy;
-  val resultantFood: Food = puppyFeeder.transform(myPuppy);
+  val miCachorro = new Cachorro;
+  val comidaResultante: Comida = alimentadorCachorro.transformar(miCachorro);
 
-  print("Resulting food type: ${resultantFood.getClass.getSimpleName}")
+  print("Tipo de comida resultante: ${comidaResultante.getClass.getSimpleName}")
 }

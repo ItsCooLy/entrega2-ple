@@ -1,3 +1,10 @@
-Cat.talk = method() : String {
-  print("Cats meows")
+object Gato
+
+Gato.hablar = method() : String {
+  print("Los gatos maullan")
+}
+
+method main {
+  val miGato = new Gato;
+  print(miGato.hablar())
 }

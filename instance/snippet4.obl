@@ -1,4 +1,4 @@
 method main {
-  val max = if a > b then a else b;
-  for ((name, rating) in ratings) print("Movie: $name, Rating: $rating")
+  val maximo = if a > b then a else b;
+  for ((nombre, calificacion) <- calificaciones) print("Pelicula: $nombre, Calificacion: $calificacion")
 }

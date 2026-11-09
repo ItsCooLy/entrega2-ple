@@ -1,4 +1,4 @@
 Manifest-Version: 0.0.1
-Project-Name: objectilang
+Project-Name: entrega2-ple
 Source: src/main/rascal
 

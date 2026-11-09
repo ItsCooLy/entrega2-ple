@@ -1,9 +1,9 @@
 object Animal
-object Dog extends Animal
+object Perro extends Animal
 
-object Lista[+A](val item: A)
+object Lista[+A](val elemento: A)
 
 method main {
-  val miLista: Lista[Dog] = new Lista(new Dog);
-  print("Item: ${miLista.item}")
+  val miLista: Lista[Perro] = new Lista(new Perro);
+  print("Elemento: ${miLista.elemento}")
 }

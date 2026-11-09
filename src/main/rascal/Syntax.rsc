@@ -47,7 +47,7 @@ syntax Tipo
 // ---------- Objetos ----------
 // Cambio - evidence 1.4: un objeto no puede declarar variables ni metodos 
 syntax DefinicionObjeto
-  = objeto: "object" Identificador ParametrosTipo? ClausulaExtends? ParametrosConstructor? CuerpoDeObjeto?
+  = objeto: "object" !>> [a-zA-Z0-9] Identificador ParametrosTipo? ClausulaExtends? ParametrosConstructor? CuerpoDeObjeto?
   ;
 
 syntax CuerpoDeObjeto = cuerpoDeObjeto: "{" MiembroObjeto* "}";
@@ -63,21 +63,21 @@ syntax ParametroTipo
   | contravariante: "-" Identificador
   ;
 
-syntax ClausulaExtends = extiende: "extends" Tipo;
+syntax ClausulaExtends = extiende: "extends" !>> [a-zA-Z0-9] Tipo;
 
 syntax ParametrosConstructor = ctorParams: "(" {ParametroConstructor ","}+ ")";
 syntax ParametroConstructor
-  = paramVal: "val" Identificador ":" Tipo
-  | paramVar: "var" Identificador ":" Tipo
+  = paramVal: "val" !>> [a-zA-Z0-9] Identificador ":" Tipo
+  | paramVar: "var" !>> [a-zA-Z0-9] Identificador ":" Tipo
   ;
 
 // ---------- Métodos ----------
 syntax DefinicionMetodo
-  = metodo: "method" Identificador Parametros? AnotTipo? CuerpoMetodo
+  = metodo: "method" !>> [a-zA-Z0-9] Identificador Parametros? AnotTipo? CuerpoMetodo
   ;
 
 syntax AsignacionMetodo
-  = asignacion: Identificador "." Identificador "=" "method" Parametros? AnotTipo? CuerpoMetodo?
+  = asignacion: Identificador "." Identificador "=" "method" !>> [a-zA-Z0-9] Parametros? AnotTipo? CuerpoMetodo?
   ;
 
 syntax Parametros = parametros: "(" {Parametro ","}* ")";
@@ -93,6 +93,7 @@ syntax Parametro = parametro: Identificador ":" Tipo;
 // problema -- documentado como cambio real al lenguaje en el Task 2.
 syntax Sentencia
   = sentDecl: DeclaracionVariable
+  | sentAsig: Identificador "=" Exp
   | sentExp: Exp
   | sentFor: SentenciaFor
   ;
@@ -100,11 +101,11 @@ syntax Sentencia
 syntax CuerpoMetodo = cuerpo: "{" {Sentencia ";"}* "}";
 
 
-syntax SentenciaFor = paraCada: "for" "(" ClausulaFor ")" Sentencia;
+syntax SentenciaFor = paraCada: "for" !>> [a-zA-Z0-9] "(" ClausulaFor ")" Sentencia;
 // Cambio - evidence 1.2: de acuerdo a la regla ForBody ::= Pattern "<-" Expression | IDENTIFIER "in" Expression
 syntax ClausulaFor 
   = clausula: Patron "\<-" Exp
-  | clausulaIn: Identificador "in" Exp                 
+  | clausulaIn: Identificador "in" !>> [a-zA-Z0-9] Exp                 
   ;
 syntax Patron
   = patronSimple: Identificador
@@ -113,8 +114,8 @@ syntax Patron
 
 // ---------- Variables ----------
 syntax DeclaracionVariable
-  = declVal: "val" Identificador AnotTipo? "=" Exp
-  | declVar: "var" Identificador AnotTipo? "=" Exp
+  = declVal: "val" !>> [a-zA-Z0-9] Identificador AnotTipo? "=" Exp
+  | declVar: "var" !>> [a-zA-Z0-9] Identificador AnotTipo? "=" Exp
   ;
 
 // ---------- Expresiones (precedencia nativa de Rascal) ----------
@@ -125,8 +126,8 @@ syntax Exp
   | llamada: Identificador ArgsParen
   | acceso: Exp "." Identificador ArgsParen?
   | agrupada: "(" Exp ")"
-  | expSi: "if" Exp "then" Exp "else" Exp
-  | expNuevo: "new" Tipo ArgsParen? CuerpoObjeto?
+  | expSi: "if" !>> [a-zA-Z0-9] Exp "then" !>> [a-zA-Z0-9] Exp "else" !>> [a-zA-Z0-9] Exp
+  | expNuevo: "new" !>> [a-zA-Z0-9] Tipo ArgsParen? CuerpoObjeto?
   > negacion: Negacion Exp
   | menos: "-" Exp
   > right potencia: Exp "**" Exp
@@ -144,12 +145,12 @@ syntax Exp
               | mayorIgual: Exp '\>=' Exp
               | distinto: Exp '\<\>' Exp
               | igual: Exp '=' Exp
-              | pertenece: Exp "in" Exp
+              | pertenece: Exp "in" !>> [a-zA-Z0-9] Exp
               | flecha: Exp "-\>" Exp
               | flechaDoble: Exp "=\>" Exp
               )
-  > left conY: Exp "and" Exp
-  > left conO: Exp "or" Exp
+  > left conY: Exp "and" !>> [a-zA-Z0-9] Exp
+  > left conO: Exp "or" !>> [a-zA-Z0-9] Exp
   ;
 
 syntax Llamada
@@ -163,10 +164,10 @@ syntax ArgsParen = argsParen: "(" Argumentos? ")";
 syntax AnotTipo = anotTipo: ":" Tipo;
 
 syntax CuerpoObjeto = cuerpoObjeto: "{" MetodoOverride* "}";
-syntax MetodoOverride = metodoOverride: "override" Identificador Parametros AnotTipo? "=" CuerpoMetodo;
+syntax MetodoOverride = metodoOverride: "override" !>> [a-zA-Z0-9] Identificador Parametros AnotTipo? "=" CuerpoMetodo;
 
 // ---------- Punto de entrada ----------
-syntax Principal = principal: "method" "main" CuerpoMetodo;
+syntax Principal = principal: "method" !>> [a-zA-Z0-9] "main" !>> [a-zA-Z0-9] CuerpoMetodo;
 
 syntax Definicion
   = defObjeto: DefinicionObjeto

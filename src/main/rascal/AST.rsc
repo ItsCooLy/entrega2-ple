@@ -98,6 +98,7 @@ data Parametro
 // ---------- Sentencias ----------
 data Sentencia
   = sentDecl(DeclaracionVariable declaracion)
+  | sentAsig(str nombre, Exp valor)
   | sentExp(Exp expresion)
   | sentFor(SentenciaFor ciclo)
   ;

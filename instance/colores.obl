@@ -1,11 +1,11 @@
 // comentario de prueba
 object Prueba
 method main {
-  val a = 42;
-  val b = 3.14;
-  val c = true;
-  val d = 'x';
-  val e = if a > 10 and c then "si $a" else "no ${a}";
-  val f = neg c or false;
-  for ((x, y) in pares) print(x ** 2 % 3)
+  val entero = 42;
+  val decimal = 3.14;
+  val verdadero = true;
+  val letra = 'x';
+  val mensaje = if entero > 10 and verdadero then "si $entero" else "no ${entero}";
+  val negado = neg verdadero or false;
+  for ((x, y) <- pares) print(x ** 2 % 3)
 }
