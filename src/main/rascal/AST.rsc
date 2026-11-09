@@ -35,7 +35,17 @@ data DefinicionObjeto
   = objeto(str nombre,
            list[ParametrosTipo] parametrosDeTipo,
            list[ClausulaExtends] herencia,
-           list[ParametrosConstructor] constructor)
+           list[ParametrosConstructor] constructor,
+           list[CuerpoDeObjeto] cuerpoObj)           // cambio - evidence 1.4: objeto con cuerpo
+  ;
+
+data CuerpoDeObjeto
+  = cuerpoDeObjeto(list[MiembroObjeto] miembros)
+  ;
+
+data MiembroObjeto
+  = miembroDecl(DeclaracionVariable declaracion)
+  | miembroMetodo(DefinicionMetodo definicion)
   ;
 
 data ParametrosTipo
@@ -100,8 +110,10 @@ data SentenciaFor
   = paraCada(ClausulaFor clausulaFor, Sentencia cuerpoFor)
   ;
 
+// cambio - evidence 1.2: de acuerdo a la regla ForBody ::= Pattern "<-" Expression | IDENTIFIER "in" Expression
 data ClausulaFor
   = clausula(Patron patron, Exp coleccion)
+  | clausulaIn(str nombre, Exp coleccion)
   ;
 
 data Patron
@@ -117,11 +129,13 @@ data DeclaracionVariable
 // ---------- Expresiones ----------
 data Exp
   = dato(Dato valor)
-  | llamada(str nombre, list[Llamada] llamadas)
+  | variable(str nombre) // cambio: antes una variable era llamada(nombre, [])
+  | llamada(str nombre, ArgsParen argumento)
+  | acceso(Exp expresion, str nombre, list[ArgsParen] llamadaParen)
   | agrupada(Exp expresion)
   | expSi(Exp condicion, Exp entonces, Exp sino)
   | expNuevo(Tipo tipo, list[ArgsParen] argumentos, list[CuerpoObjeto] cuerpoNuevo)
-  | negacion(Exp expresion)
+  | negacion(str operador, Exp expresion)
   | menos(Exp expresion)
   | potencia(Exp izq, Exp der)
   | mult(Exp izq, Exp der)
@@ -135,6 +149,9 @@ data Exp
   | mayorIgual(Exp izq, Exp der)
   | distinto(Exp izq, Exp der)
   | igual(Exp izq, Exp der)
+  | pertenece(Exp izq, Exp der) // cambio - evidence 1.4: "in" es un operador valido de acuerdo al enunciado de la entrega 1
+  | flecha(Exp izq, Exp der) // cambio - evidence 1.4: "->" es un operador valido de acuerdo al enunciado de la entrega 1
+  | flechaDoble(Exp izq, Exp der) // cambio - evidence 1.4: "=>" es un operador valido de acuerdo al enunciado de la entrega 1
   | conY(Exp izq, Exp der)
   | conO(Exp izq, Exp der)
   ;
