@@ -10,6 +10,8 @@ keyword Palabras = "object" | "extends" | "method" | "val" | "var" | "new" | "ov
                   | "true" | "false" | "and" | "or" | "neg" | "main";
 
 lexical Identificador = ([a-zA-Z][a-zA-Z0-9]* !>> [a-zA-Z0-9]) \ Palabras;
+// Cambio - evidence 1.4: "neg" es palabra reservada, no se puede usar como identificador.
+lexical Negacion = "neg" !>> [a-zA-Z0-9];
 
 // ---------- Literales (con categoria para resaltado de sintaxis) ----------
 // @category solo se aplica a UN simbolo (una referencia a otra regla),
@@ -24,7 +26,8 @@ lexical Flotante = @category="number" DigitosFlotante;
 lexical Booleano = @category="keyword" "true" | @category="keyword" "false";
 
 lexical CaracterCadena = ![\"$];
-lexical Interpolacion = "$" "{" Exp "}" | "$" Identificador;
+// Cambio - evidence 1.4: "${x}" funcionaba pero "${ x }" fallaba porque no lleva layout.
+lexical Interpolacion = "$" "{" Layout Exp Layout "}" | "$" Identificador;
 lexical ContenidoCadena = CaracterCadena | Interpolacion;
 lexical TextoCadena = [\"] ContenidoCadena* [\"];
 lexical Cadena = @category="string" TextoCadena;
@@ -42,8 +45,15 @@ syntax Tipo
   ;
 
 // ---------- Objetos ----------
+// Cambio - evidence 1.4: un objeto no puede declarar variables ni metodos 
 syntax DefinicionObjeto
-  = objeto: "object" Identificador ParametrosTipo? ClausulaExtends? ParametrosConstructor?
+  = objeto: "object" Identificador ParametrosTipo? ClausulaExtends? ParametrosConstructor? CuerpoDeObjeto?
+  ;
+
+syntax CuerpoDeObjeto = cuerpoDeObjeto: "{" MiembroObjeto* "}";
+syntax MiembroObjeto
+  = miembroDecl: DeclaracionVariable
+  | miembroMetodo: DefinicionMetodo
   ;
 
 syntax ParametrosTipo = tipos: "[" {ParametroTipo ","}+ "]";
@@ -73,15 +83,29 @@ syntax AsignacionMetodo
 syntax Parametros = parametros: "(" {Parametro ","}* ")";
 syntax Parametro = parametro: Identificador ":" Tipo;
 
+// Se necesita un separador real entre sentencias -- "print(...)" sin nada
+// de por medio es ambiguo entre "una llamada" y "dos sentencias pegadas".
+// Se probo primero exigir un salto de linea (como en los snippets del
+// enunciado original), pero el separador de salto de linea entra en
+// conflicto con el Layout automatico que Rascal inserta en todo syntax
+// (ambos compiten por el mismo caracter \n en un parser scannerless).
+// Punto y coma es la alternativa simple y confirmada que no tiene ese
+// problema -- documentado como cambio real al lenguaje en el Task 2.
 syntax Sentencia
   = sentDecl: DeclaracionVariable
   | sentExp: Exp
   | sentFor: SentenciaFor
   ;
+// Cambio - evidence 1.1: quitar ";" genera mas ambiguedades.
 syntax CuerpoMetodo = cuerpo: "{" {Sentencia ";"}* "}";
 
+
 syntax SentenciaFor = paraCada: "for" "(" ClausulaFor ")" Sentencia;
-syntax ClausulaFor = clausula: Patron "in" Exp;
+// Cambio - evidence 1.2: de acuerdo a la regla ForBody ::= Pattern "<-" Expression | IDENTIFIER "in" Expression
+syntax ClausulaFor 
+  = clausula: Patron "\<-" Exp
+  | clausulaIn: Identificador "in" Exp                 
+  ;
 syntax Patron
   = patronSimple: Identificador
   | patronTupla: "(" Identificador "," {Identificador ","}+ ")"
@@ -96,11 +120,14 @@ syntax DeclaracionVariable
 // ---------- Expresiones (precedencia nativa de Rascal) ----------
 syntax Exp
   = dato: Dato
-  | llamada: Identificador Llamada*
+  // Cambio - Se separan variables de llamadas y se exije un sufijo para una llamada
+  | variable: Identificador
+  | llamada: Identificador ArgsParen
+  | acceso: Exp "." Identificador ArgsParen?
   | agrupada: "(" Exp ")"
   | expSi: "if" Exp "then" Exp "else" Exp
   | expNuevo: "new" Tipo ArgsParen? CuerpoObjeto?
-  > negacion: "neg" Exp
+  > negacion: Negacion Exp
   | menos: "-" Exp
   > right potencia: Exp "**" Exp
   > left ( mult: Exp "*" Exp
@@ -110,12 +137,16 @@ syntax Exp
   > left ( suma: Exp "+" Exp
          | resta: Exp "-" Exp
          )
+  // Cambio - evidence 1.4: "in", "->" y "=>" son operadores validos de acuerdo al enunciado de la entrega 1, ->  y => no tiene definicion o ejemplo de uso
   > non-assoc ( menorQue: Exp '\<' Exp
               | mayorQue: Exp '\>' Exp
               | menorIgual: Exp '\<=' Exp
               | mayorIgual: Exp '\>=' Exp
               | distinto: Exp '\<\>' Exp
               | igual: Exp '=' Exp
+              | pertenece: Exp "in" Exp
+              | flecha: Exp "-\>" Exp
+              | flechaDoble: Exp "=\>" Exp
               )
   > left conY: Exp "and" Exp
   > left conO: Exp "or" Exp
@@ -123,9 +154,9 @@ syntax Exp
 
 syntax Llamada
   = conArgumentos: "(" Argumentos? ")"
-  | conPunto: "." Identificador
+  | conPunto: "." Identificador ArgsParen?
   ;
-  
+
 syntax Argumentos = argumentos: {Exp ","}+;
 
 syntax ArgsParen = argsParen: "(" Argumentos? ")";
